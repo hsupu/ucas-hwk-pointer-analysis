@@ -46,8 +46,7 @@ public class Scope {
                 if (argBox != null) {
                     box = new VarBox(argBox);
                 } else {
-                    Var var = new Var(arg);
-                    box = new VarBox(var);
+                    box = VarBox.of(arg);
                 }
                 bindLocalAndVarBox(local, box);
             }
