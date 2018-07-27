@@ -1,15 +1,17 @@
 package app;
 
 import java.util.*;
-
 import soot.SootFieldRef;
 import soot.Type;
 import soot.Value;
 
 /**
  * @author xp
+ * The Var class describes variable and its fields.
+ * Field is saved in a map as a varbox(Var with its source) 
+ * by its ref.
  */
-public class Var {
+public class Var implements Cloneable{
 
     private final Value value;
 
@@ -24,7 +26,7 @@ public class Var {
         this.type = value.getType();
         this.typeName = type.toString();
     }
-
+    
     public VarBox getField(SootFieldRef fieldRef) {
         return fields.get(fieldRef);
     }
@@ -41,7 +43,22 @@ public class Var {
     @Override
     public String toString() {
         return "Var{"
-                + typeName
+                + typeName +" "
+                + fields.toString()
                 + '}';
     }
+
+    public void setfields(Map <SootFieldRef, VarBox> fields) throws CloneNotSupportedException{
+    	for (Map.Entry<SootFieldRef, VarBox>entry : fields.entrySet()){
+	    	this.fields.put(entry.getKey(), (VarBox)entry.getValue().clone());
+	    }
+    }
+    
+    @Override
+    protected Object clone() throws CloneNotSupportedException { 
+    	Var var = new Var((Value)this.value);
+    	var.setfields(this.fields);
+		return var;
+	}
+    
 }
