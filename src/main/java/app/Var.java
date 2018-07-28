@@ -11,7 +11,7 @@ import soot.Value;
  * Field is saved in a map as a varbox(Var with its source) 
  * by its ref.
  */
-public class Var implements Cloneable{
+public class Var implements Cloneable {
 
     private final Value value;
 
@@ -48,17 +48,17 @@ public class Var implements Cloneable{
                 + '}';
     }
 
-    public void setfields(Map <SootFieldRef, VarBox> fields) throws CloneNotSupportedException{
-    	for (Map.Entry<SootFieldRef, VarBox>entry : fields.entrySet()){
-	    	this.fields.put(entry.getKey(), (VarBox)entry.getValue().clone());
-	    }
+    public void setFields(Map <SootFieldRef, VarBox> fields) throws CloneNotSupportedException {
+        for (Map.Entry<SootFieldRef, VarBox>entry : fields.entrySet()) {
+            this.fields.put(entry.getKey(), (VarBox)entry.getValue().clone());
+        }
     }
     
     @Override
     protected Object clone() throws CloneNotSupportedException { 
-    	Var var = new Var((Value)this.value);
-    	var.setfields(this.fields);
-		return var;
-	}
+        Var var = new Var((Value)this.value);
+        var.setFields(this.fields);
+        return var;
+    }
     
 }

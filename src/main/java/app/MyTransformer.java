@@ -30,52 +30,52 @@ public class MyTransformer extends SceneTransformer {
     private void inMethod(SootMethod method, Scope scope) {
         Body body = method.getActiveBody();
         UnitGraph bg = new BriefUnitGraph(body);
-        Iterator<Unit>	it = bg.iterator();
+        Iterator<Unit>    it = bg.iterator();
         Unit u = it.next();
         inBranch(u, bg, scope);
     }
-    private Unit inBranch(Unit u, UnitGraph bg, Scope scope){
+    private Unit inBranch(Unit u, UnitGraph bg, Scope scope) {
         List<Unit> succs = new ArrayList<>();
         try {
-        	do{
-            	MyPrinter.log("InBranch Scope:\n"+scope.toString());
-            	oneUnit(u, scope);      	
-            	succs = bg.getSuccsOf(u);
-            	List<Unit> preds = bg.getPredsOf(u);
-            	//MyPrinter.log("preds: "+preds.toString());
-            	//MyPrinter.log(u.toString());
-            	//MyPrinter.log("succs: "+succs.toString());
-            	
-    	        if(succs.size()==1){
-    	        	u = succs.get(0);
-    	        }else if (succs.size()==2){//if i0 <= i1 goto r10 = r9
-    	        	Unit u1 = (Unit)succs.get(0);
-    	        	Scope scope1 = scope.clone();
-    	        	MyPrinter.log("InBranch scope1:\n"+scope1.toString());
-    	        	u = inBranch(u1, bg, scope1);
-    	        	MyPrinter.log("InBranch scope1:\n"+scope1.toString());
+            do{
+                MyPrinter.log("InBranch Scope:\n"+scope.toString());
+                oneUnit(u, scope);          
+                succs = bg.getSuccsOf(u);
+                List<Unit> preds = bg.getPredsOf(u);
+                //MyPrinter.log("preds: " + preds.toString());
+                //MyPrinter.log(u.toString());
+                //MyPrinter.log("succs: " + succs.toString());
+                
+                if (succs.size() == 1) {
+                    u = succs.get(0);
+                } else if (succs.size() == 2) {//if i0 <= i1 goto r10 = r9
+                    Unit u1 = (Unit)succs.get(0);
+                    Scope scope1 = scope.clone();
+                    MyPrinter.log("InBranch scope1:\n" + scope1.toString());
+                    u = inBranch(u1, bg, scope1);
+                    MyPrinter.log("InBranch scope1:\n" + scope1.toString());
 
-    	        	Unit u2 = (Unit)succs.get(1);
-    	        	Scope scope2 = scope.clone();
-    	        	MyPrinter.log("InBranch scope2:\n"+scope2.toString());
-    	        	u = inBranch(u2, bg, scope2);
-    	        	MyPrinter.log("InBranch scope2:\n"+scope2.toString());
-    	        	
-    	        	scope.reset(scope1.join(scope2));
-    	        	MyPrinter.log("InBranch join scope:\n"+scope.toString());
-    	        }
-            	if(preds.size()>1){
-            		return u;
-            	}
-        	}while(succs.size()>0);
+                    Unit u2 = (Unit)succs.get(1);
+                    Scope scope2 = scope.clone();
+                    MyPrinter.log("InBranch scope2:\n" + scope2.toString());
+                    u = inBranch(u2, bg, scope2);
+                    MyPrinter.log("InBranch scope2:\n" + scope2.toString());
+                    
+                    scope.reset(scope1.join(scope2));
+                    MyPrinter.log("InBranch join scope:\n" + scope.toString());
+                }
+                if (preds.size()>1) {
+                    return u;
+                }
+            }while(succs.size()>0);
         } catch (Exception e) {
             e.printStackTrace();
         }
-    	return u;
+        return u;
     }
     
     private void oneUnit(Unit u, Scope scope){
-    	if (u instanceof IdentityStmt) {//xx:=xxx
+        if (u instanceof IdentityStmt) {//xx:=xxx
             IdentityStmt is = (IdentityStmt) u;
             Value lop = is.getLeftOp();
             Value rop = is.getRightOp();
@@ -104,7 +104,7 @@ public class MyTransformer extends SceneTransformer {
                 VarBox rbaseBox = scope.getOrAdd(rbase);
                 rbox = rbaseBox.getVar().getField(rfield);
             } else {//$i0 virtualinvoke $r8.<java.util.Random: int nextInt()>()
-            	return;
+                return;
             }
             if (lop instanceof Local) {//r1 or $r1
                 VarBox lbox = scope.getOrAdd((Local) lop);
@@ -147,9 +147,9 @@ public class MyTransformer extends SceneTransformer {
                     }
                 }
             }
-        }else{
-        	//MyPrinter.log("other "+u.toString());
+        } else {
+            //MyPrinter.log("other " + u.toString());
         }
-    	return;
+        return;
     }
 }

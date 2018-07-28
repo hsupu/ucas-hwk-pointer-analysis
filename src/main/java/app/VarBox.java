@@ -17,7 +17,7 @@ public class VarBox implements Cloneable{
     private final Set<Integer> source = new HashSet<>();
     
     public VarBox(){
-    	
+        
     }
     
     public VarBox(Var var) {
@@ -63,23 +63,23 @@ public class VarBox implements Cloneable{
     }
     
     public void reset(VarBox varBox) {
-    	this.name = varBox.name;
+        this.name = varBox.name;
         this.var = (Var)varBox.var;
         this.setSource(varBox.source);
     }
     
-    public void setSource(Set<Integer> source){
-    	this.source.clear();
-    	for(Integer i : source){
-    		this.source.add(i);
-    	}
+    public void setSource(Set<Integer> source) {
+        this.source.clear();
+        for (Integer i : source) {
+            this.source.add(i);
+        }
     }
    
     @Override
     protected Object clone() throws CloneNotSupportedException {
-    	VarBox varBox = new VarBox((Var)this.var.clone());
-    	varBox.setSource(this.source);
-    	
-		return varBox;
-	}    
+        VarBox varBox = new VarBox((Var)this.var.clone());
+        varBox.setSource(this.source);
+        
+        return varBox;
+    }    
 }
