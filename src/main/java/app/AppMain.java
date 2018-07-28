@@ -45,4 +45,3 @@ public class AppMain {
                 args[1]
         });
     }
-}
