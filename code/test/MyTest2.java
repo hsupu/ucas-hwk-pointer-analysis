@@ -45,8 +45,7 @@ public class MyTest2 {
         Benchmark.test(2, a.g); // expected: 2 3	b1: 2		b2: 3		not 4
         Benchmark.test(3, c.f); // expected: 1		b1: 1		b2: 1
         Benchmark.test(4, c);   // expected: 2
-
-        // Benchmark.test(5, c.g);// expected : 5
+        Benchmark.test(5, c.g); // expected: 5
     }
 
     /*

@@ -82,7 +82,8 @@ public class Scope {
 
     public Var createVarBox(Value value) {
         Var var = Var.of(value);
-        var.addSource(analyzer.getAllocId());
+        // 根据测评要求，allocId 只对紧接着的一条 AssignStmt NewExpr 有效
+        // var.addSource(analyzer.getAllocId());
         return var;
     }
 

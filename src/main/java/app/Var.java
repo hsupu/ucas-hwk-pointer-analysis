@@ -41,6 +41,7 @@ public class Var {
     }
 
     public void assign(Var var) {
+        source.clear();
         source.addAll(var.source);
         val = var.val;
     }
