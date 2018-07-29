@@ -36,6 +36,7 @@ public class MyTransformer extends SceneTransformer {
     }
 
     private void inBlock(Unit u, Scope scope, UnitGraph graph) {
+        Printer.log(scope.depth(), scope.toString());
         while (true) {
             Printer.log(scope.depth(), u.toString());
             oneUnit(u, scope);
@@ -46,7 +47,7 @@ public class MyTransformer extends SceneTransformer {
             } else if (succCount > 1) {
                 for (Unit succ : succs) {
                     Printer.log(scope.depth(), "branch " + succ.toString());
-                    inBlock(succ, scope.clone(), graph);
+                    inBlock(succ, scope.createSameScope(), graph);
                 }
                 return;
             } else {
@@ -76,7 +77,7 @@ public class MyTransformer extends SceneTransformer {
 //                    if (succ != null) {
 //                        Scope existed = unitScopeMap.get(succ);
 //                        if (existed == null) {
-//                            existed = scope.clone();
+//                            existed = scope.createSameScope();
 //                            unitScopeMap.put(succ, existed);
 //                        }
 //                        existed.join(subScope);
@@ -144,6 +145,10 @@ public class MyTransformer extends SceneTransformer {
 
                 if (ie instanceof InstanceInvokeExpr) {
                     // specialinvoke
+                    switch (methodSignature) {
+                        case "<java.lang.Object: void <init>()>":
+                            return;
+                    }
                     InstanceInvokeExpr sie = (InstanceInvokeExpr) ie;
                     Local base = (Local) sie.getBase();
                     Var baseVar = scope.getOrAdd(base);
@@ -168,6 +173,8 @@ public class MyTransformer extends SceneTransformer {
                     }
                 }
             }
+        } else if (u instanceof ReturnStmt || u instanceof ReturnVoidStmt) {
+            Printer.log(scope.depth(), scope.toString());
         }
     }
 }

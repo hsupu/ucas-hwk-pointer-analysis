@@ -42,6 +42,7 @@ public class Analyzer {
         for (Map.Entry<Integer, Local> entry : queries.entrySet()) {
             Set<Var> vars = sourceMap.get(entry.getValue());
             if (vars != null) {
+                Printer.log(0, "output " + entry.getKey() + " " + vars.toString());
                 Set<Integer> sources = new HashSet<>();
                 for (Var var : vars) {
                     sources.addAll(var.getSource());

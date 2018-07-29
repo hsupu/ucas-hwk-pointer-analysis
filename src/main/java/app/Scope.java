@@ -22,37 +22,33 @@ public class Scope {
 
     private final int argCount;
 
-    private final Scope parentScope;
+    private final int depth;
 
     private Map<Local, Var> varMap = new HashMap<>();
 
-    private Scope(Analyzer analyzer, Scope invokerScope, Var thisVar, List<Value> args, Scope parentScope) {
+    private Scope(Analyzer analyzer, Scope invokerScope, Var thisVar, List<Value> args, int depth) {
         this.analyzer = analyzer;
         this.invokerScope = invokerScope;
         this.thisVar = thisVar;
         this.args = args;
         this.argCount = args.size();
-        this.parentScope = parentScope;
+        this.depth = depth;
     }
 
     public Scope(Analyzer analyzer) {
-        this(analyzer, null, null, Collections.emptyList(), null);
+        this(analyzer, null, null, Collections.emptyList(), 0);
     }
 
-    public Scope clone() {
-        Scope scope = new Scope(analyzer, invokerScope, thisVar, args, parentScope);
-        for (Map.Entry<Local, Var> entry : varMap.entrySet()) {
-            scope.varMap.put(entry.getKey(), entry.getValue().clone());
+    public Scope createSameScope() {
+        Scope scope = new Scope(analyzer, invokerScope, thisVar, args, depth);
+        for (Map.Entry<Local, Var> entry : this.varMap.entrySet()) {
+            scope.varMap.put(entry.getKey(), entry.getValue().duplicate(true));
         }
         return scope;
     }
 
-    public Scope createSubScope() {
-        return new Scope(this.analyzer, this.invokerScope, this.thisVar, this.args, this);
-    }
-
     public Scope createInvokeScope(Var thisVar, List<Value> args) {
-        return new Scope(this.analyzer, this, thisVar, args, null);
+        return new Scope(this.analyzer, this, thisVar, args, depth + 1);
     }
 
     public Analyzer getAnalyzer() {
@@ -71,7 +67,7 @@ public class Scope {
                 Var argVar = invokerScope.get((Local) argValue);
                 Var var;
                 if (argVar != null) {
-                    var = argVar.clone();
+                    var = argVar.duplicate(false);
                 } else {
                     var = Var.of(argValue);
                 }
@@ -81,7 +77,7 @@ public class Scope {
     }
 
     public void bindThis(Local local) {
-        bindLocalAndVarBox(local, thisVar.clone());
+        bindLocalAndVarBox(local, thisVar.duplicate(false));
     }
 
     public Var createVarBox(Value value) {
@@ -91,18 +87,25 @@ public class Scope {
     }
 
     private Var get(Local local) {
-        Var var = null;
-        if (parentScope != null) {
-            var = parentScope.get(local);
-            if (var != null) {
-                varMap.put(local, var.clone());
-            }
-        }
-        if (var == null) {
-            var = varMap.get(local);
-        }
-        return var;
+        return varMap.get(local);
     }
+
+//    private Var get(Local local, boolean writeThrough) {
+//        Var var = null;
+//        if (parentScope != null) {
+//            var = parentScope.get(local, false);
+//            if (var != null) {
+//                var = var.duplicate(false);
+//                if (writeThrough) {
+//                    varMap.put(local, var);
+//                }
+//            }
+//        }
+//        if (var == null) {
+//            var = varMap.get(local);
+//        }
+//        return var;
+//    }
 
     public Var getOrAdd(Local local) {
         Var var = get(local);
@@ -113,36 +116,24 @@ public class Scope {
         return var;
     }
 
-    public void join(Scope another) {
-        for (Map.Entry<Local, Var> entry : another.varMap.entrySet()) {
-            Var existed = this.varMap.get(entry.getKey());
-            if (existed != null) {
-                existed.assign(entry.getValue());
-            }
-        }
-    }
+//    public void join(Scope another) {
+//        for (Map.Entry<Local, Var> entry : another.varMap.entrySet()) {
+//            Var existed = this.varMap.get(entry.getKey());
+//            if (existed != null) {
+//                existed.assign(entry.getValue());
+//            }
+//        }
+//    }
 
     @Override
     public String toString() {
-        return "Scope{\n"
-                + this.thisVar + "\n"
-                + this.varMap + "\n"
+        return "Scope{"
+                + this.thisVar + " "
+                + this.varMap
                 + "}";
     }
 
     public int depth() {
-        int depth = 0;
-        Scope scope;
-        scope = invokerScope;
-        while (scope != null) {
-            depth++;
-            scope = scope.invokerScope;
-        }
-        scope = parentScope;
-        while (parentScope != null) {
-            depth++;
-            scope = scope.parentScope;
-        }
         return depth;
     }
 }
