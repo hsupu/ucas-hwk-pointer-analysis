@@ -1,64 +1,64 @@
 package app;
 
 import java.util.*;
-import soot.SootFieldRef;
-import soot.Type;
+
 import soot.Value;
 
 /**
  * @author xp
- * The Var class describes variable and its fields.
- * Field is saved in a map as a varbox(Var with its source) 
- * by its ref.
+ * @author wss
+ * 模拟了变量（引用），引用可以被重新赋值，使之指向不同的值
+ * 记录了可能的引用标号
  */
-public class Var implements Cloneable {
+public class Var {
 
-    private final Value value;
+    private String name;
 
-    private Type type;
+    private Val val;
 
-    private String typeName;
+    private final Set<Integer> source = new HashSet<>();
 
-    private Map<SootFieldRef, VarBox> fields = new HashMap<>();
-
-    public Var(Value value) {
-        this.value = value;
-        this.type = value.getType();
-        this.typeName = type.toString();
-    }
-    
-    public VarBox getField(SootFieldRef fieldRef) {
-        return fields.get(fieldRef);
+    private Var(Val val) {
+        this.val = val;
+        this.name = val.getValue().toString();
     }
 
-    public void setField(SootFieldRef fieldRef, VarBox box) {
-        VarBox existed = fields.get(fieldRef);
-        if (existed == null) {
-            existed = new VarBox(box);
-            fields.put(fieldRef, existed);
+    public Var clone() {
+        Var var = new Var(this.val);
+        var.source.addAll(this.source);
+        return var;
+    }
+
+    public void addSource(Integer allocId) {
+        if (allocId != null) {
+            source.add(allocId);
         }
-        existed.assign(box);
+    }
+
+    public void assign(Var var) {
+        source.addAll(var.source);
+        val = var.val;
+    }
+
+    public Val getVal() {
+        return val;
+    }
+
+    public Set<Integer> getSource() {
+        return source;
     }
 
     @Override
     public String toString() {
         return "Var{"
-                + typeName +" "
-                + fields.toString()
+                + name + " "
+                + System.identityHashCode(val) + " "
+                + source
                 + '}';
     }
 
-    public void setFields(Map <SootFieldRef, VarBox> fields) throws CloneNotSupportedException {
-        for (Map.Entry<SootFieldRef, VarBox>entry : fields.entrySet()) {
-            this.fields.put(entry.getKey(), (VarBox)entry.getValue().clone());
-        }
+    public static Var of(Value value) {
+        Val val = new Val(value);
+        return new Var(val);
     }
-    
-    @Override
-    protected Object clone() throws CloneNotSupportedException { 
-        Var var = new Var((Value)this.value);
-        var.setFields(this.fields);
-        return var;
-    }
-    
 }

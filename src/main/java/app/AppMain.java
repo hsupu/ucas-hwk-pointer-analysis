@@ -19,7 +19,7 @@ public class AppMain {
         if (args.length == 0) {
             args = new String[]{
                     "code",
-                    "test.FieldSensitivity"
+                    "test.MyTest1"
             };
         }
 
@@ -27,14 +27,14 @@ public class AppMain {
         classpath.add(args[0]);
 
 //        String jreHome = System.getProperty("java.home");
-//        classpath.add(joinPath(jreHome, "lib", "rt.jar"));
-//        classpath.add(joinPath(jreHome, "lib", "jce.jar"));
+//        classpath.register(joinPath(jreHome, "lib", "rt.jar"));
+//        classpath.register(joinPath(jreHome, "lib", "jce.jar"));
         classpath.add(joinPath(args[0], "rt.jar"));
         classpath.add(joinPath(args[0], "jce.jar"));
 
 //        soot.options.Options.v().set_whole_program(true);
 
-        // whole-jimple transformation pack
+        // register whole-jimple transformation pack
         PackManager.v().getPack("wjtp").add(new Transform("wjtp.myapp", new MyTransformer()));
         soot.Main.main(new String[]{
                 "-w",
@@ -45,3 +45,4 @@ public class AppMain {
                 args[1]
         });
     }
+}

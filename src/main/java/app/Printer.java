@@ -8,12 +8,22 @@ import java.util.*;
 /**
  * @author xp
  */
-public class MyPrinter {
+public class Printer {
 
     private static List<String> logs = new LinkedList<>();
 
     public static void log(String s) {
-        logs.add(s);
+        System.out.println(s);
+        // logs.add(s);
+    }
+
+    public static void log(int depth, String s) {
+        StringBuilder sb = new StringBuilder(depth + s.length());
+        for (int i = depth; i > 0; i--) {
+            sb.append('\t');
+        }
+        sb.append(s);
+        log(sb.toString());
     }
 
     public static List<String> getLogs() {
@@ -29,10 +39,12 @@ public class MyPrinter {
     }
 
     public static void save(Path path, Collection<String> s) {
-        try {
-            Files.write(path, s);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (!s.isEmpty()) {
+            try {
+                Files.write(path, s);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

@@ -7,20 +7,13 @@ import benchmark.objects.A;
 import benchmark.objects.B;
 
 /*
- * @testcase FieldSensitivity2
- *
- * @version 1.0
- *
- * @author Johannes Späth, Nguyen Quang Do Lisa (Secure Software Engineering Group, Fraunhofer
- * Institute SIT)
- *
- * @description Field Sensitivity without static method
+ * @testcase FieldSensitivityAndCondition
  */
-public class FieldSensitivity {
+public class FieldSensitivityAndCondition {
 
     private static final Random random = new Random();
 
-    public FieldSensitivity() {
+    public FieldSensitivityAndCondition() {
     }
 
     private void assign(A x, A y) {
@@ -38,10 +31,12 @@ public class FieldSensitivity {
         A c = new A();
         Benchmark.alloc(4);
         A d = new A();
-        if ( r1 < r2) {
+        if (r1 < r2) {
             c.g = d.g;
-        }else{
+        } else if (r1 > r2) {
         	a.g = c.g;
+        } else {
+            d.g = a.g;
         }
         Benchmark.alloc(5);
         B e = new B();
@@ -49,10 +44,10 @@ public class FieldSensitivity {
         c.g = e;
         c = a;
         
-        Benchmark.test(1, a); // expected: 2		b1: 2		b2: 2
-        Benchmark.test(2, a.g); // expected:2 3	    b1: 2		b2: 3		not 4
+        Benchmark.test(1, a);   // expected: 2		b1: 2		b2: 2
+        Benchmark.test(2, a.g); // expected: 2 3	b1: 2		b2: 3		not 4
         Benchmark.test(3, c.f); // expected: 1		b1: 1		b2: 1
-        Benchmark.test(4, c);//expected: 2
+        Benchmark.test(4, c);   //expected: 2
         
         
         
@@ -75,7 +70,7 @@ result2:
 
     public static void main(String[] args) {
 
-        FieldSensitivity fs2 = new FieldSensitivity();
+        FieldSensitivityAndCondition fs2 = new FieldSensitivityAndCondition();
         fs2.test();
     }
 
