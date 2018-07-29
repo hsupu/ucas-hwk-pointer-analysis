@@ -19,7 +19,7 @@ public class Val {
 
     private String typeName;
 
-    private Map<SootFieldRef, Var> fields = new HashMap<>();
+    private Map<SootFieldRef, Var> fieldMap = new HashMap<>();
 
     public Val(Value value) {
         this.value = value;
@@ -27,19 +27,27 @@ public class Val {
         this.typeName = type.toString();
     }
 
+    public Val duplicateDeeply() {
+        Val val = new Val(value);
+        for (Map.Entry<SootFieldRef, Var> entry : this.fieldMap.entrySet()) {
+            val.fieldMap.put(entry.getKey(), entry.getValue().duplicate(true));
+        }
+        return val;
+    }
+
     public Value getValue() {
         return value;
     }
 
     public Var getField(SootFieldRef fieldRef) {
-        return fields.get(fieldRef);
+        return fieldMap.get(fieldRef);
     }
 
     public void setField(SootFieldRef fieldRef, Var box) {
-        Var existed = fields.get(fieldRef);
+        Var existed = fieldMap.get(fieldRef);
         if (existed == null) {
-            existed = box.clone();
-            fields.put(fieldRef, existed);
+            existed = box.duplicate(false);
+            fieldMap.put(fieldRef, existed);
         } else {
             existed.assign(box);
         }
@@ -49,7 +57,7 @@ public class Val {
     public String toString() {
         return "Val{"
                 + typeName + " "
-                + "fields:" + fields.toString()
+                + "fieldMap:" + fieldMap.toString()
                 + '}';
     }
 }

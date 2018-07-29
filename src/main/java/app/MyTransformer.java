@@ -36,6 +36,7 @@ public class MyTransformer extends SceneTransformer {
     }
 
     private void inBlock(Unit u, Scope scope, UnitGraph graph) {
+        Printer.log(scope.depth(), scope.toString());
         while (true) {
             Printer.log(scope.depth(), u.toString());
             oneUnit(u, scope);
@@ -46,7 +47,7 @@ public class MyTransformer extends SceneTransformer {
             } else if (succCount > 1) {
                 for (Unit succ : succs) {
                     Printer.log(scope.depth(), "branch " + succ.toString());
-                    inBlock(succ, scope.clone(), graph);
+                    inBlock(succ, scope.createSameScope(), graph);
                 }
                 return;
             } else {
@@ -76,7 +77,7 @@ public class MyTransformer extends SceneTransformer {
 //                    if (succ != null) {
 //                        Scope existed = unitScopeMap.get(succ);
 //                        if (existed == null) {
-//                            existed = scope.clone();
+//                            existed = scope.createSameScope();
 //                            unitScopeMap.put(succ, existed);
 //                        }
 //                        existed.join(subScope);
@@ -91,6 +92,7 @@ public class MyTransformer extends SceneTransformer {
 //    }
 
     private void oneUnit(Unit u, Scope scope) {
+        Analyzer analyzer = scope.getAnalyzer();
         if (u instanceof IdentityStmt) {
             IdentityStmt is = (IdentityStmt) u;
             Value lop = is.getLeftOp();
@@ -109,8 +111,14 @@ public class MyTransformer extends SceneTransformer {
             Value rop = as.getRightOp();
 
             Var rvar = null;
-            if (rop instanceof Constant || rop instanceof NewExpr) {
+            if (rop instanceof NewExpr) {
                 rvar = scope.createVarBox(rop);
+                // 根据测评要求，allocId 只对紧接着的一条 AssignStmt NewExpr 有效
+                rvar.addSource(analyzer.getAllocId());
+                analyzer.setAllocId(0);
+            } else if (rop instanceof Constant) {
+                // 测评不需要处理非引用类型
+                // rvar = scope.createVarBox(rop);
             } else if (rop instanceof Local) {
                 rvar = scope.getOrAdd((Local) rop);
             } else if (rop instanceof InstanceFieldRef) {
@@ -144,6 +152,11 @@ public class MyTransformer extends SceneTransformer {
 
                 if (ie instanceof InstanceInvokeExpr) {
                     // specialinvoke
+                    // 跳过一些空函数，提高日志可读性
+                    switch (methodSignature) {
+                        case "<java.lang.Object: void <init>()>":
+                            return;
+                    }
                     InstanceInvokeExpr sie = (InstanceInvokeExpr) ie;
                     Local base = (Local) sie.getBase();
                     Var baseVar = scope.getOrAdd(base);
@@ -151,8 +164,7 @@ public class MyTransformer extends SceneTransformer {
                     Printer.log(scope.depth(), "invoke " + invokeMethod.toString());
                     inMethod(invokeMethod, invokeScope);
                 } else {
-                    // handle "staticinvoke" only
-                    Analyzer analyzer = scope.getAnalyzer();
+                    // 测评需要，只处理 staticinvoke
                     switch (methodSignature) {
                         case "<benchmark.internal.Benchmark: void alloc(int)>": {
                             int allocId = ((IntConstant) invokeArgs.get(0)).value;
@@ -168,6 +180,8 @@ public class MyTransformer extends SceneTransformer {
                     }
                 }
             }
+        } else if (u instanceof ReturnStmt || u instanceof ReturnVoidStmt) {
+            Printer.log(scope.depth(), scope.toString());
         }
     }
 }

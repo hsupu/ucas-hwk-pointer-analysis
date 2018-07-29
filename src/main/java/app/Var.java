@@ -23,10 +23,15 @@ public class Var {
         this.name = val.getValue().toString();
     }
 
-    public Var clone() {
-        Var var = new Var(this.val);
+    public Var duplicate(boolean deep) {
+        Var var = new Var(deep ? this.val.duplicateDeeply() : this.val);
         var.source.addAll(this.source);
         return var;
+    }
+
+    public static Var of(Value value) {
+        Val val = new Val(value);
+        return new Var(val);
     }
 
     public void addSource(Integer allocId) {
@@ -36,6 +41,7 @@ public class Var {
     }
 
     public void assign(Var var) {
+        source.clear();
         source.addAll(var.source);
         val = var.val;
     }
@@ -55,10 +61,5 @@ public class Var {
                 + System.identityHashCode(val) + " "
                 + source
                 + '}';
-    }
-
-    public static Var of(Value value) {
-        Val val = new Val(value);
-        return new Var(val);
     }
 }
