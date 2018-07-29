@@ -6,14 +6,11 @@ import benchmark.internal.Benchmark;
 import benchmark.objects.A;
 import benchmark.objects.B;
 
-/*
- * @testcase FieldSensitivityAndCondition
- */
-public class FieldSensitivityAndCondition {
+public class MyTest2 {
 
     private static final Random random = new Random();
 
-    public FieldSensitivityAndCondition() {
+    public MyTest2() {
     }
 
     private void assign(A x, A y) {
@@ -47,31 +44,27 @@ public class FieldSensitivityAndCondition {
         Benchmark.test(1, a);   // expected: 2		b1: 2		b2: 2
         Benchmark.test(2, a.g); // expected: 2 3	b1: 2		b2: 3		not 4
         Benchmark.test(3, c.f); // expected: 1		b1: 1		b2: 1
-        Benchmark.test(4, c);   //expected: 2
-        
-        
-        
-        //Benchmark.test(5, c.g);// expected : 5
+        Benchmark.test(4, c);   // expected: 2
 
-/*
-result1:
-1: 2
-2: 2
-3: 1 2
-4: 2
-
-result2:
-1: 2
-2: 2 3
-3: 1 2
-4: 2
-*/
+        // Benchmark.test(5, c.g);// expected : 5
     }
+
+    /*
+    result1:
+    1: 2
+    2: 2
+    3: 1 2
+    4: 2
+
+    result2:
+    1: 2
+    2: 2 3
+    3: 1 2
+    4: 2
+    */
 
     public static void main(String[] args) {
-
-        FieldSensitivityAndCondition fs2 = new FieldSensitivityAndCondition();
+        MyTest2 fs2 = new MyTest2();
         fs2.test();
     }
-
 }
