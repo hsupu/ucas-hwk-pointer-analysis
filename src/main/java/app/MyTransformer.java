@@ -21,7 +21,6 @@ public class MyTransformer extends SceneTransformer {
             SootMethod mainMethod = Scene.v().getMainMethod();
             inMethod(mainMethod, new Scope(analyzer));
             Printer.save(Paths.get("result.txt"), analyzer.analyze());
-            Printer.save(Paths.get("debug.txt"), Printer.getLogs());
         } catch (Throwable e) {
             // 救我狗命
             e.printStackTrace();

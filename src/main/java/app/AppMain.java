@@ -26,9 +26,9 @@ public class AppMain {
         List<String> classpath = new ArrayList<>();
         classpath.add(args[0]);
 
-//        String jreHome = System.getProperty("java.home");
-//        classpath.register(joinPath(jreHome, "lib", "rt.jar"));
-//        classpath.register(joinPath(jreHome, "lib", "jce.jar"));
+        String jreHome = System.getProperty("java.home");
+        classpath.add(joinPath(jreHome, "lib", "rt.jar"));
+        classpath.add(joinPath(jreHome, "lib", "jce.jar"));
         classpath.add(joinPath(args[0], "rt.jar"));
         classpath.add(joinPath(args[0], "jce.jar"));
 
