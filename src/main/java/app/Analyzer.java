@@ -41,22 +41,20 @@ public class Analyzer {
         List<String> results = new LinkedList<>();
         for (Map.Entry<Integer, Local> entry : queries.entrySet()) {
             Set<Var> vars = sourceMap.get(entry.getValue());
+            Printer.log(0, "output " + entry.getKey() + " " + Objects.toString(vars));
+            Set<Integer> sources = new HashSet<>();
             if (vars != null) {
-                Printer.log(0, "output " + entry.getKey() + " " + vars.toString());
-                Set<Integer> sources = new HashSet<>();
                 for (Var var : vars) {
                     sources.addAll(var.getSource());
                 }
-                if (!sources.isEmpty()) {
-                    StringBuilder idsb = new StringBuilder();
-                    for (int id : sources) {
-                        if (id > 0) {
-                            idsb.append(' ').append(id);
-                        }
-                    }
-                    results.add(entry.getKey() + ":" + idsb.toString());
+            }
+            StringBuilder idsb = new StringBuilder();
+            for (int id : sources) {
+                if (id > 0) {
+                    idsb.append(' ').append(id);
                 }
             }
+            results.add(entry.getKey() + ":" + idsb.toString());
         }
         return results;
     }
