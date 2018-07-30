@@ -16,6 +16,8 @@ public class Scope {
 
     private final Scope invokerScope;
 
+    private final String methodSignature;
+
     private final Var thisVar;
 
     private final List<Value> args;
@@ -26,9 +28,10 @@ public class Scope {
 
     private Map<Local, Var> varMap = new HashMap<>();
 
-    private Scope(Analyzer analyzer, Scope invokerScope, Var thisVar, List<Value> args, int depth) {
+    private Scope(Analyzer analyzer, Scope invokerScope, String methodSignature, Var thisVar, List<Value> args, int depth) {
         this.analyzer = analyzer;
         this.invokerScope = invokerScope;
+        this.methodSignature = methodSignature;
         this.thisVar = thisVar;
         this.args = args;
         this.argCount = args.size();
@@ -36,19 +39,19 @@ public class Scope {
     }
 
     public Scope(Analyzer analyzer) {
-        this(analyzer, null, null, Collections.emptyList(), 0);
+        this(analyzer, null, null, null, Collections.emptyList(), 0);
     }
 
     public Scope createSameScope() {
-        Scope scope = new Scope(analyzer, invokerScope, thisVar, args, depth);
+        Scope scope = new Scope(analyzer, invokerScope, methodSignature, thisVar, args, depth);
         for (Map.Entry<Local, Var> entry : this.varMap.entrySet()) {
             scope.varMap.put(entry.getKey(), entry.getValue().duplicate(true));
         }
         return scope;
     }
 
-    public Scope createInvokeScope(Var thisVar, List<Value> args) {
-        return new Scope(this.analyzer, this, thisVar, args, depth + 1);
+    public Scope createInvokeScope(String methodSignature, Var thisVar, List<Value> args) {
+        return new Scope(this.analyzer, this, methodSignature, thisVar, args, depth + 1);
     }
 
     public Analyzer getAnalyzer() {
@@ -125,6 +128,16 @@ public class Scope {
 //            }
 //        }
 //    }
+
+    public boolean isInInvokeChain(String methodSignature) {
+        if (methodSignature.equals(this.methodSignature)) {
+            return true;
+        }
+        if (invokerScope != null) {
+            return invokerScope.isInInvokeChain(methodSignature);
+        }
+        return false;
+    }
 
     @Override
     public String toString() {

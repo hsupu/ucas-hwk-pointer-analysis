@@ -156,10 +156,14 @@ public class MyTransformer extends SceneTransformer {
                         case "<java.lang.Object: void <init>()>":
                             return;
                     }
+                    if (scope.isInInvokeChain(methodSignature)) {
+                        // 静态分析不处理递归函数
+                        return;
+                    }
                     InstanceInvokeExpr sie = (InstanceInvokeExpr) ie;
                     Local base = (Local) sie.getBase();
                     Var baseVar = scope.getOrAdd(base);
-                    Scope invokeScope = scope.createInvokeScope(baseVar, invokeArgs);
+                    Scope invokeScope = scope.createInvokeScope(methodSignature, baseVar, invokeArgs);
                     Printer.log(scope.depth(), "invoke " + invokeMethod.toString());
                     inMethod(invokeMethod, invokeScope);
                 } else {
