@@ -36,14 +36,18 @@ public class Val {
 
     public Val duplicateDeeply() {
         Val val = new Val(value);
-        for (Map.Entry<SootFieldRef, Var> entry : this.fieldMap.entrySet()) {
-            val.fieldMap.put(entry.getKey(), entry.getValue().duplicate(true));
+        if (this.fieldMap != null) {
+            for (Map.Entry<SootFieldRef, Var> entry : this.fieldMap.entrySet()) {
+                val.fieldMap.put(entry.getKey(), entry.getValue().duplicate(true));
+            }
         }
-        int arrSize = this.elements.size();
-        if (arrSize > 0) {
-            val.elements = new ArrayList<>(arrSize);
-            for (Var var : this.elements) {
-                val.elements.add(var.duplicate(true));
+        if (this.elements != null) {
+            int arrSize = this.elements.size();
+            if (arrSize > 0) {
+                val.elements = new ArrayList<>(arrSize);
+                for (Var var : this.elements) {
+                    val.elements.add(var.duplicate(true));
+                }
             }
         }
         return val;

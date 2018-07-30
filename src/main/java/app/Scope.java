@@ -22,28 +22,31 @@ public class Scope {
 
     private final List<Value> args;
 
-    private final int argCount;
+    private final Scope predecessorScope;
+
+    private final String branchSignature;
 
     private final int depth;
 
     private Map<Local, Var> varMap = new HashMap<>();
 
-    private Scope(Analyzer analyzer, Scope invokerScope, String methodSignature, Var thisVar, List<Value> args, int depth) {
+    private Scope(Analyzer analyzer, Scope invokerScope, String methodSignature, Var thisVar, List<Value> args, Scope predecessorScope, String branchSignature, int depth) {
         this.analyzer = analyzer;
         this.invokerScope = invokerScope;
         this.methodSignature = methodSignature;
         this.thisVar = thisVar;
         this.args = args;
-        this.argCount = args.size();
+        this.predecessorScope = predecessorScope;
+        this.branchSignature = branchSignature;
         this.depth = depth;
     }
 
-    public Scope(Analyzer analyzer) {
-        this(analyzer, null, null, null, Collections.emptyList(), 0);
+    public static Scope of(Analyzer analyzer) {
+        return new Scope(analyzer, null, null, null, Collections.emptyList(), null, null, 0);
     }
 
-    public Scope createSameScope() {
-        Scope scope = new Scope(analyzer, invokerScope, methodSignature, thisVar, args, depth);
+    public Scope createBranchScope(String branchSignature) {
+        Scope scope = new Scope(analyzer, invokerScope, methodSignature, thisVar, args, this, branchSignature, depth + 1);
         for (Map.Entry<Local, Var> entry : this.varMap.entrySet()) {
             scope.varMap.put(entry.getKey(), entry.getValue().duplicate(true));
         }
@@ -51,7 +54,7 @@ public class Scope {
     }
 
     public Scope createInvokeScope(String methodSignature, Var thisVar, List<Value> args) {
-        return new Scope(this.analyzer, this, methodSignature, thisVar, args, depth + 1);
+        return new Scope(this.analyzer, this, methodSignature, thisVar, args, null, null, depth + 1);
     }
 
     public Analyzer getAnalyzer() {
@@ -64,7 +67,7 @@ public class Scope {
     }
 
     public void bindArg(Local local, int paramIndex) {
-        if (paramIndex >= 0 && paramIndex < argCount) {
+        if (paramIndex >= 0 && paramIndex < args.size()) {
             Value argValue = args.get(paramIndex);
             if (argValue instanceof Local) {
                 Var argVar = invokerScope.get((Local) argValue);
@@ -135,6 +138,16 @@ public class Scope {
         }
         if (invokerScope != null) {
             return invokerScope.isInInvokeChain(methodSignature);
+        }
+        return false;
+    }
+    
+    public boolean isInBranchChain(String branchSignature) {
+        if (branchSignature.equals(this.branchSignature)) {
+            return true;
+        }
+        if (predecessorScope != null) {
+            return predecessorScope.isInBranchChain(branchSignature);
         }
         return false;
     }

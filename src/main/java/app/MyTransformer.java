@@ -19,7 +19,7 @@ public class MyTransformer extends SceneTransformer {
         try {
             Analyzer analyzer = new Analyzer();
             SootMethod mainMethod = Scene.v().getMainMethod();
-            inMethod(mainMethod, new Scope(analyzer));
+            inMethod(mainMethod, Scope.of(analyzer));
             Printer.save(Paths.get("result.txt"), analyzer.analyze());
         } catch (Throwable e) {
             // 救我狗命
@@ -45,8 +45,13 @@ public class MyTransformer extends SceneTransformer {
                 u = succs.iterator().next();
             } else if (succCount > 1) {
                 for (Unit succ : succs) {
-                    Printer.log(scope.depth(), "branch " + succ.toString());
-                    inBlock(succ, scope.createSameScope(), graph);
+                    String branchSignature = succ.toString();
+                    if (scope.isInBranchChain(branchSignature)) {
+                        // 静态分析不处理循环
+                        continue;
+                    }
+                    Printer.log(scope.depth(), "branch " + branchSignature);
+                    inBlock(succ, scope.createBranchScope(branchSignature), graph);
                 }
                 return;
             } else {
@@ -76,7 +81,7 @@ public class MyTransformer extends SceneTransformer {
 //                    if (succ != null) {
 //                        Scope existed = unitScopeMap.get(succ);
 //                        if (existed == null) {
-//                            existed = scope.createSameScope();
+//                            existed = scope.createBranchScope();
 //                            unitScopeMap.put(succ, existed);
 //                        }
 //                        existed.join(subScope);
