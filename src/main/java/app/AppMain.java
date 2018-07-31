@@ -19,7 +19,7 @@ public class AppMain {
         if (args.length == 0) {
             args = new String[]{
                     "code",
-                    "test.MyTest4"
+                    "test.MyTest2"
             };
         }
 
