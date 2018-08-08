@@ -2,6 +2,7 @@ package app;
 
 import java.util.*;
 
+import soot.Local;
 import soot.Value;
 
 /**
@@ -14,24 +15,29 @@ public class Var {
 
     private String name;
 
+    private Local origin;
+
     private Val val;
 
     private final Set<Integer> source = new HashSet<>();
 
-    private Var(Val val) {
+    private Var(Value originValue, Val val) {
+        this.name = originValue.toString();
+        if (originValue instanceof Local) {
+            this.origin = (Local) originValue;
+        }
         this.val = val;
-        this.name = val.getValue().toString();
     }
 
     public Var duplicate(boolean deep) {
-        Var var = new Var(deep ? this.val.duplicateDeeply() : this.val);
+        Var var = new Var(origin, deep ? this.val.duplicateDeeply() : this.val);
         var.source.addAll(this.source);
         return var;
     }
 
     public static Var of(Value value) {
         Val val = new Val(value);
-        return new Var(val);
+        return new Var(value, val);
     }
 
     public void addSource(Integer allocId) {
@@ -44,6 +50,10 @@ public class Var {
         source.clear();
         source.addAll(var.source);
         val = var.val;
+    }
+
+    public Local getOrigin() {
+        return origin;
     }
 
     public Val getVal() {

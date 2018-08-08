@@ -48,7 +48,8 @@ public class Scope {
     public Scope createBranchScope(String branchSignature) {
         Scope scope = new Scope(analyzer, invokerScope, methodSignature, thisVar, args, this, branchSignature, depth + 1);
         for (Map.Entry<Local, Var> entry : this.varMap.entrySet()) {
-            scope.varMap.put(entry.getKey(), entry.getValue().duplicate(true));
+            Var duplicate = entry.getValue().duplicate(true);
+            scope.bindLocalAndVarBox(duplicate.getOrigin(), duplicate);
         }
         return scope;
     }
